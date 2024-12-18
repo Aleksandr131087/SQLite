@@ -59,8 +59,11 @@ class ActivityTwo : AppCompatActivity() {
             Toast.makeText(this, "Данные сохранены", Toast.LENGTH_SHORT).show()
         } else {
             Toast.makeText(this, "Ошибка сохранения данных", Toast.LENGTH_SHORT).show()
-        }    }
+        }
 
+    nameEditText.text.clear()
+    phoneEditText.text.clear()
+       }
     @SuppressLint("Range")
     private fun getData() {
         val cursor = databaseHelper.getData()
