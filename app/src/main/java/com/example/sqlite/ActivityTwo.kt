@@ -18,77 +18,75 @@ import androidx.core.view.WindowInsetsCompat
 
 class ActivityTwo : AppCompatActivity() {
 
-    private lateinit var toolbar:Toolbar
-private lateinit var nameET:EditText
-private lateinit var phoneET:EditText
-private lateinit var spinner:Spinner
-private lateinit var saveBTN:Button
-private lateinit var deleteBTN:Button
-private lateinit var getBTN:Button
-private lateinit var nameTV: TextView
-private lateinit var phoneTV:TextView
- private lateinit var  professionTV: TextView
+    private lateinit var nameEditText: EditText
+    private lateinit var positionSpinner: Spinner
+    private lateinit var phoneEditText: EditText
+    private lateinit var saveButton: Button
+    private lateinit var getDataButton: Button
+    private lateinit var deleteButton: Button
+    private lateinit var outputTextView: TextView
+    var databaseHelper = DBHelper(this)
 
-private var db = DBHelper(this, null)
-
-
-
-    @SuppressLint("Range")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_two)
 
-        toolbar = findViewById(R.id.toolbar)
-        setSupportActionBar(toolbar)
-        professionTV = findViewById(R.id.professionTV)
-        phoneTV = findViewById(R.id.phoneTV)
-        nameTV = findViewById(R.id.nameTV)
-        getBTN = findViewById(R.id.getBTN)
-        deleteBTN = findViewById(R.id.deleteBTN)
-        saveBTN = findViewById(R.id.saveBTN)
-        spinner = findViewById(R.id.spinner)
-        phoneET = findViewById(R.id.phoneET)
-        nameET = findViewById(R.id.nameET)
+        nameEditText = findViewById(R.id.nameEditText)
+        positionSpinner = findViewById(R.id.positionSpinner)
+        phoneEditText = findViewById(R.id.phoneEditText)
+        saveButton = findViewById(R.id.saveButton)
+        getDataButton = findViewById(R.id.getDataButton)
+        deleteButton = findViewById(R.id.deleteButton)
+        outputTextView = findViewById(R.id.outputTextView)
 
 
-        val positions = arrayOf("Менеджер", "Разработчик", "Дизайнер")
-        spinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, positions)
 
-        saveBTN.setOnClickListener {
-            val name = nameET.text.toString()
-            val phone = phoneET.text.toString()
-        val profession = spinner.selectedItem.toString()
-            db.addName(name,phone, profession)
-            Toast.makeText(this, "$name $phone добавлены в базу данных", Toast.LENGTH_SHORT).show()
-       nameET.text.clear()
-            phoneET.text.clear()
-        }
+        val positions = arrayOf("выберите профессию", "Менеджер", "Разработчик", "Дизайнер", "Энергетик", "Инженер")
+        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, positions)
+        positionSpinner.adapter = adapter
 
-        getBTN.setOnClickListener {
-            val cursor = db.getInfo()
-            if (cursor!=null && cursor.moveToFirst()){
-                cursor.moveToFirst()
-                nameTV.append(cursor.getString(cursor.getColumnIndex(DBHelper.KEY_NAME))+"\n")
-                phoneTV.append(cursor!!.getString(cursor.getColumnIndex(DBHelper.KEY_PHONE))+"\n")
-                professionTV.append(cursor.getString(cursor.getColumnIndex(DBHelper.KEY_PROFESSION))+"\n")
-            }
-            while (cursor!!.moveToNext()){
-                nameTV.append(cursor.getString(cursor.getColumnIndex(DBHelper.KEY_NAME))+"\n")
-                phoneTV.append(cursor!!.getString(cursor.getColumnIndex(DBHelper.KEY_PHONE))+"\n")
-                professionTV.append(cursor.getString(cursor.getColumnIndex(DBHelper.KEY_PROFESSION))+"\n")
-            }
-cursor.close()
-        }
-
-        deleteBTN.setOnClickListener {
-db.removaAll()
-            nameTV.text = ""
-            phoneTV.text= " "
-
-        }
-
+        saveButton.setOnClickListener { saveData() }
+        getDataButton.setOnClickListener { getData() }
+        deleteButton.setOnClickListener { deleteData() }
     }
 
+    private fun saveData() {
+        val name = nameEditText.text.toString()
+        val position = positionSpinner.selectedItem.toString()
+        val phone = phoneEditText.text.toString()
+
+        if (databaseHelper.insertData(name, position, phone)) {
+            Toast.makeText(this, "Данные сохранены", Toast.LENGTH_SHORT).show()
+        } else {
+            Toast.makeText(this, "Ошибка сохранения данных", Toast.LENGTH_SHORT).show()
+        }    }
+
+    @SuppressLint("Range")
+    private fun getData() {
+        val cursor = databaseHelper.getData()
+        val stringBuilder = StringBuilder()
+
+        if (cursor.moveToFirst()) {
+            do {
+                val id = cursor.getInt(cursor.getColumnIndex("id"))
+                val name = cursor.getString(cursor.getColumnIndex("name"))
+                val position = cursor.getString(cursor.getColumnIndex("position"))
+                val phone = cursor.getString(cursor.getColumnIndex("phone"))
+                stringBuilder.append("ID: $id, Имя: $name, Должность: $position, Телефон: $phone\n")
+            } while (cursor.moveToNext())
+        }
+        cursor.close()
+        outputTextView.text = stringBuilder.toString()
+    }
+
+    private fun deleteData() {
+        val id = nameEditText.text.toString().toIntOrNull()
+        if (id != null && databaseHelper.deleteData(id) > 0) {
+            Toast.makeText(this, "Данные удалены", Toast.LENGTH_SHORT).show()
+        } else {
+            Toast.makeText(this, "Ошибка удаления данных", Toast.LENGTH_SHORT).show()
+        }
+    }
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_exit, menu)
         return true
@@ -104,3 +102,5 @@ db.removaAll()
         }
     }
 }
+
+
