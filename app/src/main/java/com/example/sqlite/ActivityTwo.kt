@@ -11,9 +11,10 @@ import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 
 class ActivityTwo : AppCompatActivity() {
-
+private lateinit var toolbar:Toolbar
     private lateinit var nameEditText: EditText
     private lateinit var positionSpinner: Spinner
     private lateinit var phoneEditText: EditText
@@ -26,7 +27,8 @@ class ActivityTwo : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_two)
-
+        toolbar = findViewById(R.id.toolbar)
+        setSupportActionBar(toolbar)
         nameEditText = findViewById(R.id.nameEditText)
         positionSpinner = findViewById(R.id.positionSpinner)
         phoneEditText = findViewById(R.id.phoneEditText)
