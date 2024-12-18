@@ -1,8 +1,10 @@
 package com.example.sqlite
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Spinner
@@ -31,6 +33,7 @@ private var db = DBHelper(this, null)
 
 
 
+    @SuppressLint("Range")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_two)
@@ -48,10 +51,14 @@ private var db = DBHelper(this, null)
         nameET = findViewById(R.id.nameET)
 
 
+        val positions = arrayOf("Менеджер", "Разработчик", "Дизайнер")
+        spinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, positions)
+
         saveBTN.setOnClickListener {
             val name = nameET.text.toString()
             val phone = phoneET.text.toString()
-            db.addName(name,phone, spinner.toString())
+        val profession = spinner.selectedItem.toString()
+            db.addName(name,phone, profession)
             Toast.makeText(this, "$name $phone добавлены в базу данных", Toast.LENGTH_SHORT).show()
        nameET.text.clear()
             phoneET.text.clear()
@@ -59,8 +66,25 @@ private var db = DBHelper(this, null)
 
         getBTN.setOnClickListener {
             val cursor = db.getInfo()
-            if (cursor!=null && cursor.moveToFirst())
-                nameTV.append(cursor.getString())
+            if (cursor!=null && cursor.moveToFirst()){
+                cursor.moveToFirst()
+                nameTV.append(cursor.getString(cursor.getColumnIndex(DBHelper.KEY_NAME))+"\n")
+                phoneTV.append(cursor!!.getString(cursor.getColumnIndex(DBHelper.KEY_PHONE))+"\n")
+                professionTV.append(cursor.getString(cursor.getColumnIndex(DBHelper.KEY_PROFESSION))+"\n")
+            }
+            while (cursor!!.moveToNext()){
+                nameTV.append(cursor.getString(cursor.getColumnIndex(DBHelper.KEY_NAME))+"\n")
+                phoneTV.append(cursor!!.getString(cursor.getColumnIndex(DBHelper.KEY_PHONE))+"\n")
+                professionTV.append(cursor.getString(cursor.getColumnIndex(DBHelper.KEY_PROFESSION))+"\n")
+            }
+cursor.close()
+        }
+
+        deleteBTN.setOnClickListener {
+db.removaAll()
+            nameTV.text = ""
+            phoneTV.text= " "
+
         }
 
     }

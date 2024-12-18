@@ -19,10 +19,11 @@ companion object{
 }
 
     override fun onCreate(db: SQLiteDatabase) {
-        val query = ("CREATE_TABLE " + TABLE_NAME + " (" +
-                KEY_ID + " INTEGER PRIMERY KEY, " +
-                KEY_NAME + " TEXT,"+
-                KEY_PHONE + " TEXT" + ")")
+        val query = ("CREATE TABLE $TABLE_NAME (" +
+                "$KEY_ID INTEGER PRIMARY KEY AUTOINCREMENT," +
+                "$KEY_NAME TEXT," +
+                "$KEY_ID TEXT," +
+                "$KEY_PHONE TEXT)")
         db.execSQL(query)
     }
 
